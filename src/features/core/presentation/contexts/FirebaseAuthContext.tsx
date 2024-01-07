@@ -6,7 +6,6 @@ import {
   signInWithPhoneNumber as signInWithPhoneNumberFirebase,
   signOut,
 } from "firebase/auth";
-import PropTypes from "prop-types";
 import { FC, ReactNode, createContext, useEffect, useReducer } from "react";
 import { auth } from "../../domain/utils/firebase";
 
@@ -113,7 +112,10 @@ const AuthContext = createContext<AuthContextValue>({
   signInWithGoogle: () => {
     return Promise.resolve();
   },
-  logout: () => Promise.resolve(),
+  logout: async () => {
+    const response = await signOut(auth);
+    return response;
+  },
 });
 
 export const AuthProvider: FC<AuthProviderProps> = (props) => {
