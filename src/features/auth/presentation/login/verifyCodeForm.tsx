@@ -1,7 +1,6 @@
 import useAuth from "@/features/core/presentation/hooks/useAuth";
 import { ConfirmationResult } from "firebase/auth";
 import { useFormik } from "formik";
-import { useState } from "react";
 
 const VerifyCodeForm = ({ result }: { result: ConfirmationResult }) => {
   const { verifyCode } = useAuth();
@@ -10,7 +9,7 @@ const VerifyCodeForm = ({ result }: { result: ConfirmationResult }) => {
     initialValues: {
       code: "",
     },
-    onSubmit: async ({ code }, formikHelpers) => {
+    onSubmit: async ({ code }) => {
       verifyCode(code, result);
     },
   });
@@ -19,6 +18,7 @@ const VerifyCodeForm = ({ result }: { result: ConfirmationResult }) => {
     <form
       onSubmit={(event) => {
         event?.preventDefault();
+        formik.handleSubmit();
       }}
     >
       <input

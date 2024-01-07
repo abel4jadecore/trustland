@@ -3,19 +3,20 @@ import { Outlet } from "react-router-dom";
 import LoginPage from "../../../auth/presentation/login";
 import Authenticated from "../components/authenticated";
 import HomePage from "@/features/home/presentation";
+import SignUpPage from "@/features/auth/presentation/signup";
 
 const router: RouteObject[] = [
   {
-    path: "auth",
+    path: "account",
     children: [
       {
         path: "login",
         element: <LoginPage />,
       },
-      // {
-      //   path: "register",
-      //   element: <RegisterPage />,
-      // },
+      {
+        path: "signup",
+        element: <SignUpPage />,
+      },
     ],
   },
 

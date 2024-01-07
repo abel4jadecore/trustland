@@ -15,7 +15,11 @@ const Authenticated: FC<AuthenticatedProps> = (props: {
   const [requestedLocation, setRequestedLocation] = useState<string | null>(
     null
   );
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isInitialized } = useAuth();
+
+  if (!isInitialized) {
+    return <div>loading</div>;
+  }
 
   if (!isAuthenticated) {
     if (location.pathname !== requestedLocation) {
