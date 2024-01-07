@@ -7,12 +7,14 @@ import {
   signOut,
 } from "firebase/auth";
 import { FC, ReactNode, createContext, useEffect, useReducer } from "react";
-import { auth } from "../../domain/utils/firebase";
+import { auth, db } from "../../domain/utils/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import AppUser, { User } from "@/features/account/domain/appUser";
 
 interface AuthState {
   isInitialized: boolean;
   isAuthenticated: boolean;
-  user: unknown;
+  user: AppUser | null;
 }
 
 interface AuthContextValue extends AuthState {
@@ -30,6 +32,7 @@ interface AuthContextValue extends AuthState {
     appVerifier: ApplicationVerifier
   ) => Promise<ConfirmationResult>;
   verifyCode: (code: string, result: ConfirmationResult) => Promise<unknown>;
+  storeUserData: (data: User) => Promise<unknown>;
   signInWithGoogle: () => Promise<unknown>;
   logout: () => Promise<void>;
 }
@@ -42,7 +45,7 @@ type AuthStateChangedAction = {
   type: "AUTH_STATE_CHANGED";
   payload: {
     isAuthenticated: boolean;
-    user: unknown;
+    user: AppUser | null;
   };
 };
 
@@ -109,6 +112,10 @@ const AuthContext = createContext<AuthContextValue>({
       throw new Error();
     }
   },
+  storeUserData: async (data: User) => {
+    console.log(data);
+    return;
+  },
   signInWithGoogle: () => {
     return Promise.resolve();
   },
@@ -125,18 +132,45 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   useEffect(() => {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        dispatch({
-          type: "AUTH_STATE_CHANGED",
-          payload: {
-            isAuthenticated: true,
-            user: {
-              id: user.uid,
-              avatar: user.photoURL,
-              email: user.email,
-              name: user.email,
+        const appUserRef = doc(db, "users", user.uid);
+        const appUserSnapshot = await getDoc(appUserRef);
+        const appUser = appUserSnapshot.data() as AppUser | undefined;
+
+        if (appUser) {
+          dispatch({
+            type: "AUTH_STATE_CHANGED",
+            payload: {
+              isAuthenticated: true,
+              user: {
+                id: user.uid,
+                firstName: appUser.firstName,
+                lastName: appUser.lastName,
+                email: appUser.email,
+                phoneNumber: user.phoneNumber!,
+                address: appUser.address,
+
+                isNew: false,
+              },
             },
-          },
-        });
+          });
+        } else {
+          dispatch({
+            type: "AUTH_STATE_CHANGED",
+            payload: {
+              isAuthenticated: true,
+              user: {
+                id: user.uid,
+                firstName: "",
+                lastName: "",
+                email: "",
+                phoneNumber: "",
+                address: "",
+
+                isNew: true,
+              },
+            },
+          });
+        }
       } else {
         dispatch({
           type: "AUTH_STATE_CHANGED",
@@ -182,6 +216,31 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     return response;
   };
 
+  const storeUserData = async (data: User) => {
+    try {
+      const userRef = doc(db, "users", data.id);
+      await setDoc(userRef, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phoneNumber: data?.phoneNumber,
+        address: data.address,
+      });
+      dispatch({
+        type: "AUTH_STATE_CHANGED",
+        payload: {
+          isAuthenticated: true,
+          user: {
+            ...data,
+            isNew: false,
+          },
+        },
+      });
+    } catch (err) {
+      console.log();
+    }
+  };
+
   const signInWithGoogle = (): Promise<unknown> => {
     return Promise.resolve();
   };
@@ -200,6 +259,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         signInWithGoogle,
         signInWithPhoneNumber,
         verifyCode,
+        storeUserData,
         logout,
       }}
     >

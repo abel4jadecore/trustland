@@ -2,6 +2,7 @@ import useAuth from "../hooks/useAuth";
 import { FC, ReactNode, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import LoginPage from "../../../auth/presentation/login";
+import StoreUserData from "@/features/account/presentation/storeUserData";
 
 interface AuthenticatedProps {
   children: ReactNode;
@@ -15,7 +16,7 @@ const Authenticated: FC<AuthenticatedProps> = (props: {
   const [requestedLocation, setRequestedLocation] = useState<string | null>(
     null
   );
-  const { isAuthenticated, isInitialized } = useAuth();
+  const { isAuthenticated, isInitialized, user } = useAuth();
 
   if (!isInitialized) {
     return <div>loading</div>;
@@ -27,6 +28,10 @@ const Authenticated: FC<AuthenticatedProps> = (props: {
     }
 
     return <LoginPage />;
+  }
+
+  if (user?.isNew) {
+    return <StoreUserData />;
   }
 
   if (requestedLocation && location.pathname !== requestedLocation) {
