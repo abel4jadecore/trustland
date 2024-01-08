@@ -3,19 +3,21 @@ import { Outlet } from "react-router-dom";
 import LoginPage from "../../../auth/presentation/login";
 import Authenticated from "../components/authenticated";
 import HomePage from "@/features/home/presentation";
+import SignUpPage from "@/features/auth/presentation/signup";
+import SinglePropertyPage from "@/features/properties/presentation/single";
 
 const router: RouteObject[] = [
   {
-    path: "auth",
+    path: "account",
     children: [
       {
         path: "login",
         element: <LoginPage />,
       },
-      // {
-      //   path: "register",
-      //   element: <RegisterPage />,
-      // },
+      {
+        path: "signup",
+        element: <SignUpPage />,
+      },
     ],
   },
 
@@ -30,6 +32,19 @@ const router: RouteObject[] = [
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/properties",
+        children: [
+          {
+            path: "",
+            element: null,
+          },
+          {
+            path: ":id",
+            element: <SinglePropertyPage />,
+          },
+        ],
       },
     ],
   },

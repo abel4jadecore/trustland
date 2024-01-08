@@ -2,6 +2,7 @@ import { ConfirmationResult, RecaptchaVerifier } from "firebase/auth";
 import { useFormik } from "formik";
 import { auth } from "@/features/core/domain/utils/firebase";
 import useAuth from "@/features/core/presentation/hooks/useAuth";
+import * as Yup from "yup";
 
 const RequestVerificationCodeForm = ({
   setResult,
@@ -14,6 +15,9 @@ const RequestVerificationCodeForm = ({
     initialValues: {
       phoneNumber: "",
     },
+    validationSchema: Yup.object().shape({
+      // phoneNumber: Yup.number().min(),
+    }),
     onSubmit: async ({ phoneNumber }) => {
       try {
         const appVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
