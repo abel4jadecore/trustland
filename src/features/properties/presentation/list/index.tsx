@@ -1,15 +1,42 @@
-// import { useEffect, useState } from "react";
-// import propertyServices from "../../infrastructure/propertyServices";
-// import { where } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import propertyServices from "../../infrastructure/propertyServices";
+import { where } from "firebase/firestore";
+import { Property } from "../../domain/property";
+import PropertyCard from "./components/propertyCard";
+import { Flex } from "antd";
 
-// const PropertyListPage = () => {
-//   const [properties, setProperties] = useState();
+const PropertyListPage = () => {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-//   useEffect(() => {
-//     const getData = async () => {
-//       const response = propertyServices.getProperties(where());
-//     };
-//   });
+  useEffect(() => {
+    const getData = async () => {
+      const response = await propertyServices.getProperties();
+      setProperties(response);
+      setIsLoading(false);
+    };
 
-//   return <div>properties</div>;
-// };
+    getData();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading</div>;
+  }
+
+  const duplicateProperties = Array.from({ length: 12 }, (_, index) => ({
+    ...properties[0],
+  }));
+
+  console.log(properties);
+  return (
+    <div>
+      <Flex wrap="wrap" gap={"middle"} align="center" justify="center">
+        {duplicateProperties?.map((property) => (
+          <PropertyCard property={property} />
+        ))}
+      </Flex>
+    </div>
+  );
+};
+
+export default PropertyListPage;

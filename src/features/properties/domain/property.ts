@@ -15,6 +15,7 @@ export interface Address {
 
 export interface Property {
   id: string;
+  title: string;
   area: number;
   areaUOM: "acre" | "kilometre";
   dimension: string;

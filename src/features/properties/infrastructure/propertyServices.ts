@@ -20,14 +20,17 @@ const propertyServices = {
     const property = propertySnapshot.data() as Property | undefined;
     return property;
   },
-  getProperties: async (where: QueryFieldFilterConstraint) => {
-    const q = query(collection(db, "properties"), where);
+  getProperties: async (): Promise<Property[]> => {
+    const q = query(collection(db, "properties"));
 
     const querySnapshot = await getDocs(q);
+    const properties: Property[] = [];
     querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
+      const data = doc.data();
+      properties.push({ ...data, id: doc.id } as Property);
     });
+
+    return properties;
   },
 };
 

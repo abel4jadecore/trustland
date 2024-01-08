@@ -5,6 +5,7 @@ import Authenticated from "../components/authenticated";
 import HomePage from "@/features/home/presentation";
 import SignUpPage from "@/features/auth/presentation/signup";
 import PropertyPage from "@/features/properties/presentation/single";
+import PropertyListPage from "@/features/properties/presentation/list";
 
 const router: RouteObject[] = [
   {
@@ -38,7 +39,7 @@ const router: RouteObject[] = [
         children: [
           {
             path: "",
-            element: null,
+            element: <PropertyListPage />,
           },
           {
             path: ":id",
