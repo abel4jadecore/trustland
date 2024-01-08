@@ -3,6 +3,16 @@ export interface Coordinate {
   longitude: number;
 }
 
+export interface Address {
+  plotNo: string;
+  addressOne: string;
+  addressTwo: string;
+  state: string;
+  district: string;
+  country: string;
+  pincode: string;
+}
+
 export interface Property {
   id: string;
   area: number;
@@ -11,7 +21,7 @@ export interface Property {
   ownership: string;
   openSides: number;
   approachRoadWidth: number;
-  address: string;
+  address: Address;
   saleStatus: number;
   coordinate: Coordinate;
   description: string;
@@ -23,5 +33,6 @@ export interface Property {
   updatedAt: Date;
   pictures: unknown;
   valuation: unknown;
-  contact: unknown;
+  contactName: string;
+  contactNo: string;
 }

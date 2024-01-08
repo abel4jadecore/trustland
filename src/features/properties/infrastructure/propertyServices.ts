@@ -1,12 +1,11 @@
 import {
+  QueryFieldFilterConstraint,
   addDoc,
   collection,
   doc,
   getDoc,
   getDocs,
   query,
-  setDoc,
-  where,
 } from "firebase/firestore";
 import { Property } from "../domain/property";
 import { db } from "@/features/core/domain/utils/firebase";
@@ -21,8 +20,8 @@ const propertyServices = {
     const property = propertySnapshot.data() as Property | undefined;
     return property;
   },
-  getProperties: async () => {
-    const q = query(collection(db, "cities"), where("capital", "==", true));
+  getProperties: async (where: QueryFieldFilterConstraint) => {
+    const q = query(collection(db, "properties"), where);
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {

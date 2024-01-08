@@ -1,49 +1,27 @@
 import { useFormik } from "formik";
 import propertyServices from "../../infrastructure/propertyServices";
 import { Property } from "../../domain/property";
+import { Button, Checkbox, Form, Input } from "antd";
+import PropertyForm from "./components/propertyForm";
 
 const NewProperty = () => {
-  const formik = useFormik({
-    initialValues: {
-      id: "",
-      area: 0,
-      areaUOM: "acre",
-      dimension: "",
-      ownership: "",
-      openSides: 1,
-      approachRoadWidth: 2,
-      address: "",
-      saleStatus: 123,
-      coordinate: {
-        latitude: 12,
-        longitude: 12,
-      },
-      description: "",
-      ownerId: "",
-      docs: "",
-      propertyType: "farm",
-      listType: "sale",
-      listedAt: new Date(),
-      updatedAt: new Date(),
-      pictures: "",
-      valuation: "",
-      contact: "",
-    },
-    onSubmit: async (values: Property) => {
-      try {
-        await propertyServices.saveProperty(values);
-      } catch (err) {
-        console.log(err);
-      }
-    },
-  });
+  type FieldType = {
+    username?: string;
+    password?: string;
+    remember?: string;
+  };
+
+  function onFinish(values: unknown): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function onFinishFailed(errorInfo: unknown): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <div>
-      New
-      <form onSubmit={formik.handleSubmit}>
-        <button type="submit">Create</button>
-      </form>
+      <PropertyForm initialValues={{}} />
     </div>
   );
 };

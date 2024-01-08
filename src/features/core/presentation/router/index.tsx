@@ -4,7 +4,7 @@ import LoginPage from "../../../auth/presentation/login";
 import Authenticated from "../components/authenticated";
 import HomePage from "@/features/home/presentation";
 import SignUpPage from "@/features/auth/presentation/signup";
-import SinglePropertyPage from "@/features/properties/presentation/single";
+import PropertyPage from "@/features/properties/presentation/single";
 
 const router: RouteObject[] = [
   {
@@ -42,7 +42,11 @@ const router: RouteObject[] = [
           },
           {
             path: ":id",
-            element: <SinglePropertyPage />,
+            element: <PropertyPage />,
+          },
+          {
+            path: ":id/edit",
+            element: <PropertyPage />,
           },
         ],
       },

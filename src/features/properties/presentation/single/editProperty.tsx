@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import propertyServices from "../../infrastructure/propertyServices";
+import PropertyForm from "./components/propertyForm";
 import { Property } from "../../domain/property";
+import propertyServices from "../../infrastructure/propertyServices";
 
-const PropertyDetail = ({ id }: { id: string }) => {
+const EditProperty = ({ id }: { id: string }) => {
   const [property, setProperty] = useState<Property | undefined>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -24,7 +25,7 @@ const PropertyDetail = ({ id }: { id: string }) => {
     return <div>no property in the id</div>;
   }
 
-  return <div>{property.address}</div>;
+  return <PropertyForm initialValues={property} />;
 };
 
-export default PropertyDetail;
+export default EditProperty;
