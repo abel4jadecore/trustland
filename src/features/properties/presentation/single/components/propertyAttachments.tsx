@@ -5,45 +5,42 @@ import type { RcFile, UploadFile } from "antd/es/upload/interface";
 import { useEffect, useState } from "react";
 import propertyServices from "@/features/properties/infrastructure/propertyServices";
 import useAuth from "@/features/core/presentation/hooks/useAuth";
-import { Property } from "@/features/properties/domain/property";
 
 const { Dragger } = Upload;
 
-const PropertyAttachments = ({
-  initialValues,
-}: {
-  initialValues: Property;
-}) => {
+const PropertyAttachments = ({ id }: { id: string }) => {
   const { uploadAttachment } = propertyServices;
   const { user } = useAuth();
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
 
-  const [localFiles, setLocalFiles] = useState<RcFile[]>([]);
+  const localFiles: RcFile[] = [];
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   useEffect(() => {
     const getData = async () => {
       const response = await propertyServices.listAllFiles({
         userId: user?.id ?? "",
-        propertyId: initialValues.id,
+        propertyId: id,
       });
       setFileList(response);
     };
     getData();
-  }, [user?.id, initialValues.id]);
+  }, [user?.id, id]);
 
   const handleUpload = async () => {
-    await uploadAttachment(
-      localFiles[0],
-      {
-        userId: user?.id ?? "",
-        propertyId: initialValues.id,
-      },
-      setFileList
-    );
+    const promises = localFiles.map(async (file) => {
+      await uploadAttachment(
+        {
+          localFile: file,
+          fileList: fileList,
+          setFileList: setFileList,
+        },
+        { userId: user?.id ?? "", propertyId: id }
+      );
+    });
+    Promise.all(promises);
   };
 
   const handleCancel = () => setPreviewOpen(false);
@@ -55,9 +52,6 @@ const PropertyAttachments = ({
 
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
-    setPreviewTitle(
-      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
-    );
   };
 
   const props: UploadProps = {
@@ -67,7 +61,7 @@ const PropertyAttachments = ({
     listType: "picture-card",
     onPreview: handlePreview,
     beforeUpload: (file) => {
-      setLocalFiles([...localFiles, file]);
+      localFiles.push(file);
 
       return false;
     },

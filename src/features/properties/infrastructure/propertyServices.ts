@@ -26,6 +26,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { RcFile, UploadFile } from "antd/es/upload";
+import { Dispatch, SetStateAction } from "react";
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -115,30 +116,41 @@ const propertyServices = {
     return uploadedFiles;
   },
   uploadAttachment: async (
-    file: RcFile,
-    { userId, propertyId }: { userId: string; propertyId: string },
-    setFileList: any
+    {
+      localFile,
+      fileList,
+      setFileList,
+    }: {
+      localFile: RcFile;
+      fileList: UploadFile[];
+      setFileList: Dispatch<SetStateAction<UploadFile[]>>;
+    },
+    { userId, propertyId }: { userId: string; propertyId: string }
   ) => {
-    const type = file.type.split("/")[0];
+    const type = localFile.type.split("/")[0];
+    const base64 = await getBase64(localFile);
+
     const fileRef = ref(
       storage,
       `users/${userId}/${propertyId}/${
         type === "image" ? "pictures" : "files"
-      }/${file.uid}`
+      }/${localFile.uid}`
     );
-    await uploadBytesResumable(fileRef, file).on(
+
+    uploadBytesResumable(fileRef, localFile).on(
       "state_changed",
       async (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setFileList([
+        setFileList(() => [
+          ...fileList,
           {
-            uid: file.uid,
+            uid: localFile.uid,
             name: "image.png",
             status: "uploading",
             percent: progress,
 
-            url: await getBase64(file),
+            url: base64,
           },
         ]);
       },
@@ -146,11 +158,11 @@ const propertyServices = {
       async () => {
         setFileList([
           {
-            uid: file.uid,
+            uid: localFile.uid,
             name: "image.png",
             status: "done",
 
-            url: await getBase64(file),
+            url: base64,
           },
         ]);
       }

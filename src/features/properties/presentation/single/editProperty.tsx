@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import PropertyForm from "./components/propertyForm";
 import { Property } from "../../domain/property";
 import propertyServices from "../../infrastructure/propertyServices";
-import PropertyAttachments from "./components/propertyAttachments";
 import useAuth from "@/features/core/presentation/hooks/useAuth";
+import { Flex, Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const EditProperty = ({ id }: { id: string }) => {
   const { user } = useAuth();
@@ -21,7 +22,11 @@ const EditProperty = ({ id }: { id: string }) => {
   }, [id]);
 
   if (isLoading) {
-    return <div>property loadings</div>;
+    return (
+      <Flex justify="center" align="center">
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 120 }} spin />} />
+      </Flex>
+    );
   }
 
   if (typeof property === "undefined") {
@@ -30,8 +35,7 @@ const EditProperty = ({ id }: { id: string }) => {
 
   return (
     <>
-      {/* <PropertyForm initialValues={property} /> */}
-      <PropertyAttachments initialValues={property} />
+      <PropertyForm initialValues={property} />
     </>
   );
 };

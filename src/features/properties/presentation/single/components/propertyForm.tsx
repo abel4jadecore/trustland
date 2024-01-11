@@ -3,22 +3,24 @@ import propertyServices from "@/features/properties/infrastructure/propertyServi
 import { Button, Card, Form, Input, Select, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import { statesAndDistricts } from "./statesAndDistricts";
+import PropertyAttachments from "./propertyAttachments";
 
 const { TextArea } = Input;
 
-const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
+const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
   type FieldType = Property;
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { deleteProperty } = propertyServices;
+  const id = initialValues?.id ?? "";
 
   const stateValue = Form.useWatch(["address", "state"], form);
 
   const onFinish = async (values: object): Promise<void> => {
     const detailResponse = await propertyServices.saveProperty({
       ...values,
-      id: initialValues.id,
+      id: id,
     } as Property);
   };
 
@@ -28,7 +30,7 @@ const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   return (
-    <div style={{ marginLeft: "80px" }}>
+    <div style={{ maxWidth: "1028px", margin: "auto" }}>
       <Form
         name="basic"
         form={form}
@@ -250,6 +252,8 @@ const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
           </Form.Item>
         </Card>
 
+        <PropertyAttachments id={id} />
+
         <Form.Item wrapperCol={{ offset: 0, span: 16 }}>
           <Button type="primary" htmlType="submit">
             Submit
@@ -260,7 +264,7 @@ const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
             htmlType="submit"
             onClick={async () => {
               try {
-                await deleteProperty(initialValues.id);
+                await deleteProperty(id);
                 navigate("/properties");
               } catch (err) {
                 console.log();
