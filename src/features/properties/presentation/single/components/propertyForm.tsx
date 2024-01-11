@@ -1,24 +1,30 @@
-import { Button, Checkbox, Form, Input, Select, Card } from "antd";
+import useAuth from "@/features/core/presentation/hooks/useAuth";
 import { Property } from "@/features/properties/domain/property";
-import propertyServices from "@/features/properties/infrastructure/propertyServices";
+import { InboxOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, Select, Upload } from "antd";
 import { statesAndDistricts } from "./statesAndDistricts";
 
 const { TextArea } = Input;
+const { Dragger } = Upload;
 
-const PropertyForm = ({
-  initialValues,
-}: {
-  initialValues: Property | object;
-}) => {
+const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
   type FieldType = Property;
 
+  // const { user } = useAuth();
   const [form] = Form.useForm();
 
   const stateValue = Form.useWatch(["address", "state"], form);
 
-  const onFinish = async (values: unknown): Promise<void> => {
-    console.log(values);
-    await propertyServices.saveProperty(values as Property);
+  const onFinish = async (values: object): Promise<void> => {
+    // const detailResponse = await propertyServices.saveProperty({
+    //   ...values,
+    //   id: initialValues.id,
+    // } as Property);
+    // const attachmentsResponse = await propertyServices.saveAttachments(
+    //   fileList,
+    //   { userId: user?.id ?? "", propertyId: initialValues.id }
+    // );
+    // console.log(attachmentsResponse);
   };
 
   const filterOption = (
@@ -39,6 +45,14 @@ const PropertyForm = ({
         autoComplete="off"
       >
         <Card title="Property details ">
+          <Form.Item<FieldType>
+            label="Title"
+            name="title"
+            rules={[{ required: true, message: "Please input your area!" }]}
+          >
+            <Input type="string" />
+          </Form.Item>
+
           <Form.Item<FieldType>
             label="Area"
             name="area"

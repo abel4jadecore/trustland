@@ -25,7 +25,12 @@ const EditProperty = ({ id }: { id: string }) => {
     return <div>no property in the id</div>;
   }
 
-  return <PropertyForm initialValues={property} />;
+  return (
+    <>
+      <PropertyForm initialValues={property} />
+      {/* <PropertyAttachments initialValues={property} /> */}
+    </>
+  );
 };
 
 export default EditProperty;

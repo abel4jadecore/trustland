@@ -27,11 +27,10 @@ const PropertyListPage = () => {
     ...properties[0],
   }));
 
-  console.log(properties);
   return (
     <div>
-      <Flex wrap="wrap" gap={"middle"} align="center" justify="center">
-        {duplicateProperties?.map((property) => (
+      <Flex wrap="wrap" gap={"large"} align="center" justify="center">
+        {[...duplicateProperties, ...properties]?.map((property) => (
           <PropertyCard property={property} />
         ))}
       </Flex>
