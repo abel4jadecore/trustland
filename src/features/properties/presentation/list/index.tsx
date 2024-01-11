@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import propertyServices from "../../infrastructure/propertyServices";
-import { where } from "firebase/firestore";
 import { Property } from "../../domain/property";
 import PropertyCard from "./components/propertyCard";
 import { Flex } from "antd";
+import Spinner from "@/features/core/presentation/components/spinner";
 
 const PropertyListPage = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -20,17 +20,13 @@ const PropertyListPage = () => {
   }, []);
 
   if (isLoading) {
-    return <div>Loading</div>;
+    return <Spinner />;
   }
-
-  const duplicateProperties = Array.from({ length: 2 }, (_, index) => ({
-    ...properties[0],
-  }));
 
   return (
     <div style={{ maxWidth: "1280px", margin: "auto" }}>
       <Flex wrap="wrap" gap={"large"} align="center" justify="center">
-        {[...duplicateProperties, ...properties]?.map((property) => (
+        {properties?.map((property) => (
           <PropertyCard property={property} />
         ))}
       </Flex>
