@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import PropertyForm from "./components/propertyForm";
 import { Property } from "../../domain/property";
 import propertyServices from "../../infrastructure/propertyServices";
+import PropertyAttachments from "./components/propertyAttachments";
+import useAuth from "@/features/core/presentation/hooks/useAuth";
 
 const EditProperty = ({ id }: { id: string }) => {
+  const { user } = useAuth();
   const [property, setProperty] = useState<Property | undefined>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -27,8 +30,8 @@ const EditProperty = ({ id }: { id: string }) => {
 
   return (
     <>
-      <PropertyForm initialValues={property} />
-      {/* <PropertyAttachments initialValues={property} /> */}
+      {/* <PropertyForm initialValues={property} /> */}
+      <PropertyAttachments initialValues={property} />
     </>
   );
 };

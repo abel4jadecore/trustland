@@ -12,12 +12,28 @@ import {
   QueryDocumentSnapshot,
   WithFieldValue,
   SnapshotOptions,
+  deleteDoc,
 } from "firebase/firestore";
 import { Coordinate, Property } from "../domain/property";
 import { db } from "@/features/core/domain/utils/firebase";
 import { storage } from "@/features/core/domain/utils/firebase";
-import { UploadResult, ref, uploadBytes } from "firebase/storage";
-import { RcFile } from "antd/es/upload";
+import {
+  UploadResult,
+  listAll,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { RcFile, UploadFile } from "antd/es/upload";
+
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 
 const propertyConverter: FirestoreDataConverter<Property> = {
   toFirestore(property: WithFieldValue<Property>): DocumentData {
@@ -98,6 +114,72 @@ const propertyServices = {
 
     return uploadedFiles;
   },
+  uploadAttachment: async (
+    file: RcFile,
+    { userId, propertyId }: { userId: string; propertyId: string },
+    setFileList: any
+  ) => {
+    const type = file.type.split("/")[0];
+    const fileRef = ref(
+      storage,
+      `users/${userId}/${propertyId}/${
+        type === "image" ? "pictures" : "files"
+      }/${file.uid}`
+    );
+    await uploadBytesResumable(fileRef, file).on(
+      "state_changed",
+      async (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFileList([
+          {
+            uid: file.uid,
+            name: "image.png",
+            status: "uploading",
+            percent: progress,
+
+            url: await getBase64(file),
+          },
+        ]);
+      },
+      () => {},
+      async () => {
+        setFileList([
+          {
+            uid: file.uid,
+            name: "image.png",
+            status: "done",
+
+            url: await getBase64(file),
+          },
+        ]);
+      }
+    );
+  },
+  listAllFiles: async ({
+    userId,
+    propertyId,
+  }: {
+    userId: string;
+    propertyId: string;
+  }) => {
+    const url = `users/${userId}/${propertyId}/pictures`;
+    const listRef = ref(storage, url);
+    const response = await listAll(listRef);
+
+    const files: UploadFile[] = [];
+    const promises = response.items.map(async (item) => {
+      const imageUrl = await getDownloadURL(ref(storage, item.fullPath));
+      files.push({
+        uid: item.name,
+        url: imageUrl,
+        name: item.name,
+        status: "done",
+      });
+    });
+    await Promise.all(promises);
+    return files;
+  },
   getProperty: async (id: string): Promise<Property | undefined> => {
     const propertyRef = doc(db, "properties", id).withConverter(
       propertyConverter
@@ -119,6 +201,10 @@ const propertyServices = {
     });
 
     return properties;
+  },
+  deleteProperty: async (propertyId: string) => {
+    await deleteDoc(doc(db, "properties", propertyId));
+    return propertyId;
   },
 };
 

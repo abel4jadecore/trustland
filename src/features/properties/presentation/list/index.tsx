@@ -23,12 +23,12 @@ const PropertyListPage = () => {
     return <div>Loading</div>;
   }
 
-  const duplicateProperties = Array.from({ length: 12 }, (_, index) => ({
+  const duplicateProperties = Array.from({ length: 2 }, (_, index) => ({
     ...properties[0],
   }));
 
   return (
-    <div>
+    <div style={{ maxWidth: "1280px", margin: "auto" }}>
       <Flex wrap="wrap" gap={"large"} align="center" justify="center">
         {[...duplicateProperties, ...properties]?.map((property) => (
           <PropertyCard property={property} />

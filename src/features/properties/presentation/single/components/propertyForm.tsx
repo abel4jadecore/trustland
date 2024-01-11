@@ -1,30 +1,25 @@
-import useAuth from "@/features/core/presentation/hooks/useAuth";
 import { Property } from "@/features/properties/domain/property";
-import { InboxOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, Select, Upload } from "antd";
+import propertyServices from "@/features/properties/infrastructure/propertyServices";
+import { Button, Card, Form, Input, Select, notification } from "antd";
+import { useNavigate } from "react-router-dom";
 import { statesAndDistricts } from "./statesAndDistricts";
 
 const { TextArea } = Input;
-const { Dragger } = Upload;
 
 const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
   type FieldType = Property;
 
-  // const { user } = useAuth();
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { deleteProperty } = propertyServices;
 
   const stateValue = Form.useWatch(["address", "state"], form);
 
   const onFinish = async (values: object): Promise<void> => {
-    // const detailResponse = await propertyServices.saveProperty({
-    //   ...values,
-    //   id: initialValues.id,
-    // } as Property);
-    // const attachmentsResponse = await propertyServices.saveAttachments(
-    //   fileList,
-    //   { userId: user?.id ?? "", propertyId: initialValues.id }
-    // );
-    // console.log(attachmentsResponse);
+    const detailResponse = await propertyServices.saveProperty({
+      ...values,
+      id: initialValues.id,
+    } as Property);
   };
 
   const filterOption = (
@@ -258,6 +253,21 @@ const PropertyForm = ({ initialValues }: { initialValues: Property }) => {
         <Form.Item wrapperCol={{ offset: 0, span: 16 }}>
           <Button type="primary" htmlType="submit">
             Submit
+          </Button>
+          <Button
+            type="primary"
+            danger
+            htmlType="submit"
+            onClick={async () => {
+              try {
+                await deleteProperty(initialValues.id);
+                navigate("/properties");
+              } catch (err) {
+                console.log();
+              }
+            }}
+          >
+            Delete
           </Button>
         </Form.Item>
       </Form>

@@ -1,6 +1,6 @@
 import { useRoutes } from "react-router-dom";
-import router from "./features/core/presentation/router";
 import "./App.css";
+import router from "./features/core/presentation/router";
 
 function App() {
   const content = useRoutes(router);
