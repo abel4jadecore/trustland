@@ -3,25 +3,29 @@ export interface Coordinate {
   longitude: number;
 }
 
+export interface Address {
+  plotNo: string;
+  addressOne: string;
+  addressTwo: string;
+  state: string;
+  district: string;
+  pincode: string;
+}
+
 export interface Property {
   id: string;
+
+  address: Address;
+  approachRoadWidth: number;
   area: number;
   areaUOM: "acre" | "kilometre";
-  dimension: string;
-  ownership: string;
-  openSides: number;
-  approachRoadWidth: number;
-  address: string;
-  saleStatus: number;
-  coordinate: Coordinate;
+  contactName: string;
+  contactNo: string;
   description: string;
-  ownerId: string;
-  docs: unknown;
-  propertyType: "farm" | "residential" | "commercial";
+  dimension: string;
   listType: "sale" | "auction";
-  listedAt: Date;
-  updatedAt: Date;
-  pictures: unknown;
-  valuation: unknown;
-  contact: unknown;
+  openSides: number;
+  ownership: string;
+  propertyType: "farm" | "residential" | "commercial";
+  title: string;
 }

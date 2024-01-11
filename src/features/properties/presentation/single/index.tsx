@@ -1,18 +1,29 @@
 import { useParams } from "react-router-dom";
 import NewProperty from "./newProperty";
-import PropertyDetail from "./propertyDetail";
+import { PAGE_MODE, PageMode } from "@/features/core/domain/pageMode";
+import ViewProperty from "./viewProperty";
+import EditProperty from "./editProperty";
 
-const SinglePropertyPage = () => {
+const PropertyPage = () => {
   const params = useParams();
-  const isNew = params.id === "new";
+  const pageMode: PageMode =
+    params.id === "new"
+      ? PAGE_MODE.new
+      : location.pathname.includes("edit")
+      ? PAGE_MODE.edit
+      : PAGE_MODE.view;
 
-  if (isNew) {
+  if (pageMode === PAGE_MODE.new) {
     return <NewProperty />;
   }
 
   const id = params.id!;
 
-  return <PropertyDetail id={id} />;
+  if (pageMode === PAGE_MODE.edit) {
+    return <EditProperty id={id} />;
+  }
+
+  return <ViewProperty id={id} />;
 };
 
-export default SinglePropertyPage;
+export default PropertyPage;
