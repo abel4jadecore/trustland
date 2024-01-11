@@ -5,6 +5,7 @@ import propertyServices from "../../infrastructure/propertyServices";
 import useAuth from "@/features/core/presentation/hooks/useAuth";
 import { Flex, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import Spinner from "@/features/core/presentation/components/spinner";
 
 const EditProperty = ({ id }: { id: string }) => {
   const { user } = useAuth();
@@ -22,11 +23,7 @@ const EditProperty = ({ id }: { id: string }) => {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <Flex justify="center" align="center">
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 120 }} spin />} />
-      </Flex>
-    );
+    return <Spinner />;
   }
 
   if (typeof property === "undefined") {

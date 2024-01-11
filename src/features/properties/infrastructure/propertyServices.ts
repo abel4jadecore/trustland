@@ -84,14 +84,19 @@ const propertyConverter: FirestoreDataConverter<Property> = {
 const propertyServices = {
   saveProperty: async (data: Property) => {
     if (data.id) {
-      const propertyRef = doc(db, "properties", data.id);
-      const response = await setDoc(propertyRef, {
+      const propertyRef = doc(db, "properties", data.id).withConverter(
+        propertyConverter
+      );
+      await setDoc(propertyRef, {
         ...data,
       });
-      return response;
+      return { id: data.id };
     }
-    const response = await addDoc(collection(db, "properties"), data);
-    return response;
+
+    const response = (
+      await addDoc(collection(db, "properties"), data)
+    ).withConverter(propertyConverter);
+    return { id: response.id };
   },
   saveAttachments: async (
     files: RcFile[],

@@ -3,6 +3,7 @@ import propertyServices from "../../infrastructure/propertyServices";
 import { Property } from "../../domain/property";
 import { Descriptions, DescriptionsProps, Button } from "antd";
 import { useNavigate } from "react-router-dom";
+import Spinner from "@/features/core/presentation/components/spinner";
 
 const ViewProperty = ({ id }: { id: string }) => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const ViewProperty = ({ id }: { id: string }) => {
   }, [id]);
 
   if (isLoading) {
-    return <div>property loadings</div>;
+    return <Spinner />;
   }
 
   if (typeof property === "undefined") {

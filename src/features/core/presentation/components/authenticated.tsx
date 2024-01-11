@@ -3,6 +3,7 @@ import { FC, ReactNode, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import LoginPage from "../../../auth/presentation/login";
 import StoreUserData from "@/features/account/presentation/storeUserData";
+import Spinner from "./spinner";
 
 interface AuthenticatedProps {
   children: ReactNode;
@@ -19,7 +20,7 @@ const Authenticated: FC<AuthenticatedProps> = (props: {
   const { isAuthenticated, isInitialized, user } = useAuth();
 
   if (!isInitialized) {
-    return <div>loading</div>;
+    return <Spinner />;
   }
 
   if (!isAuthenticated) {
