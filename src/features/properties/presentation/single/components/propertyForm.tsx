@@ -30,8 +30,8 @@ const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
 
   const stateValue = Form.useWatch(["address", "state"], form);
 
-  const localFiles: RcFile[] = [];
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [localFileList, setLocalFileList] = useState<RcFile[]>([]);
 
   useEffect(() => {
     const getData = async () => {
@@ -45,17 +45,17 @@ const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
   }, [user?.id, id]);
 
   const handleUpload = async (propertyId: string) => {
-    const promises = localFiles.map(async (file) => {
+    const promises = localFileList.map(async (file) => {
       await uploadAttachment(
         {
           localFile: file,
-          fileList: fileList,
           setFileList: setFileList,
         },
         { userId: user?.id ?? "", propertyId: propertyId }
       );
     });
-    Promise.all(promises);
+    await Promise.all(promises);
+    setLocalFileList([]);
   };
 
   const onFinish = async (values: Property): Promise<void> => {
@@ -63,6 +63,7 @@ const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
       ...values,
       id: id,
     });
+    console.log("Yeah");
     await handleUpload(detailResponse.id);
   };
 
@@ -299,7 +300,8 @@ const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
 
           <PropertyAttachments
             id={id}
-            localFiles={localFiles}
+            localFileList={localFileList}
+            setLocalFileList={setLocalFileList}
             fileList={fileList}
             setFileList={setFileList}
           />

@@ -1,40 +1,32 @@
+import { db, storage } from "@/features/core/domain/utils/firebase";
+import { RcFile, UploadFile } from "antd/es/upload";
+import Compressor from "compressorjs";
 import {
-  QueryFieldFilterConstraint,
+  DocumentData,
+  FirestoreDataConverter,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
+  WithFieldValue,
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
+  updateDoc,
   getDocs,
-  setDoc,
   query,
-  FirestoreDataConverter,
-  DocumentData,
-  QueryDocumentSnapshot,
-  WithFieldValue,
-  SnapshotOptions,
-  deleteDoc,
+  setDoc,
+  arrayUnion,
 } from "firebase/firestore";
-import { Coordinate, Property } from "../domain/property";
-import { db } from "@/features/core/domain/utils/firebase";
-import { storage } from "@/features/core/domain/utils/firebase";
 import {
-  UploadResult,
+  getDownloadURL,
   listAll,
   ref,
-  uploadBytes,
   uploadBytesResumable,
-  getDownloadURL,
 } from "firebase/storage";
-import { RcFile, UploadFile } from "antd/es/upload";
 import { Dispatch, SetStateAction } from "react";
-
-const getBase64 = (file: RcFile): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
+import { Property } from "../domain/property";
+import moment from "moment";
 
 const propertyConverter: FirestoreDataConverter<Property> = {
   toFirestore(property: WithFieldValue<Property>): DocumentData {
@@ -54,6 +46,9 @@ const propertyConverter: FirestoreDataConverter<Property> = {
       ownership: property.ownership,
       propertyType: property.propertyType,
       title: property.title,
+
+      documents: property.documents,
+      pictures: property.pictures,
     };
   },
   fromFirestore(
@@ -77,6 +72,8 @@ const propertyConverter: FirestoreDataConverter<Property> = {
       ownership: data.ownership,
       propertyType: data.propertyType,
       title: data.title,
+      documents: data.documents,
+      pictures: data.pictures,
     };
   },
 };
@@ -87,7 +84,7 @@ const propertyServices = {
       const propertyRef = doc(db, "properties", data.id).withConverter(
         propertyConverter
       );
-      await setDoc(propertyRef, {
+      await updateDoc(propertyRef, {
         ...data,
       });
       return { id: data.id };
@@ -98,80 +95,152 @@ const propertyServices = {
     ).withConverter(propertyConverter);
     return { id: response.id };
   },
-  saveAttachments: async (
-    files: RcFile[],
-    { userId, propertyId }: { userId: string; propertyId: string }
-  ) => {
-    const uploadedFiles: UploadResult[] = [];
-
-    const uploadPromises = files.map(async (file) => {
-      const type = file.type.split("/")[0];
-      const fileRef = ref(
-        storage,
-        `users/${userId}/${propertyId}/${
-          type === "image" ? "pictures" : "files"
-        }/${file.uid}`
-      );
-      const response = await uploadBytes(fileRef, file);
-      uploadedFiles.push(response);
-    });
-
-    await Promise.all(uploadPromises);
-
-    return uploadedFiles;
-  },
   uploadAttachment: async (
     {
       localFile,
-      fileList,
       setFileList,
     }: {
       localFile: RcFile;
-      fileList: UploadFile[];
       setFileList: Dispatch<SetStateAction<UploadFile[]>>;
     },
     { userId, propertyId }: { userId: string; propertyId: string }
   ) => {
     const type = localFile.type.split("/")[0];
-    const base64 = await getBase64(localFile);
+    const extension = localFile.type.split("/")[1];
 
-    const fileRef = ref(
-      storage,
-      `users/${userId}/${propertyId}/${
-        type === "image" ? "pictures" : "files"
-      }/${localFile.uid}`
-    );
+    switch (type) {
+      case "image":
+        new Compressor(localFile, {
+          quality: 0.2,
+          maxWidth: 1200,
+          success: async (result) => {
+            const fileRef = ref(
+              storage,
+              `users/${userId}/properties/${propertyId}/pictures/${localFile.uid}.${extension}`
+            );
 
-    uploadBytesResumable(fileRef, localFile).on(
-      "state_changed",
-      async (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setFileList(() => [
-          ...fileList,
-          {
-            uid: localFile.uid,
-            name: "image.png",
-            status: "uploading",
-            percent: progress,
+            const uploadTask = uploadBytesResumable(fileRef, result);
 
-            url: base64,
+            uploadTask.on(
+              "state_changed",
+              async (snapshot) => {
+                const progress =
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setFileList((prevFileList) => {
+                  const filteredFileList = prevFileList.filter(
+                    (file) => localFile.uid !== file.uid
+                  );
+
+                  return [
+                    ...filteredFileList,
+                    {
+                      uid: localFile.uid,
+                      name: localFile.name,
+                      status: "uploading",
+                      percent: progress,
+                    },
+                  ];
+                });
+              },
+              () => {},
+              async () => {
+                const imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                const fullPath = (await uploadTask).metadata.fullPath;
+
+                const propertyRef = doc(db, "properties", propertyId);
+
+                const updatedata = {
+                  pictures: {
+                    [moment().format("DD-MM-YYYY")]: {
+                      description: "",
+                      fullPaths: arrayUnion(fullPath),
+                    },
+                  },
+                };
+
+                await setDoc(propertyRef, updatedata, { merge: true });
+
+                setFileList((prevFileList) => {
+                  const filteredFileList = prevFileList.filter(
+                    (file) => localFile.uid !== file.uid
+                  );
+
+                  return [
+                    ...filteredFileList,
+                    {
+                      uid: localFile.uid,
+                      name: localFile.name,
+                      status: "done",
+                      url: imageUrl,
+                    },
+                  ];
+                });
+              }
+            );
           },
-        ]);
-      },
-      () => {},
-      async () => {
-        setFileList([
-          {
-            uid: localFile.uid,
-            name: "image.png",
-            status: "done",
+        });
+        break;
+      case "application": {
+        const documentRef = ref(
+          storage,
+          `users/${userId}/properties/${propertyId}/documents/${localFile.uid}.${extension}`
+        );
 
-            url: base64,
+        const uploadTask = uploadBytesResumable(documentRef, localFile);
+
+        uploadTask.on(
+          "state_changed",
+          async (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setFileList((prevFileList) => {
+              const filteredFileList = prevFileList.filter(
+                (file) => localFile.uid !== file.uid
+              );
+
+              return [
+                ...filteredFileList,
+                {
+                  uid: localFile.uid,
+                  name: localFile.name,
+                  status: "uploading",
+                  percent: progress,
+                },
+              ];
+            });
           },
-        ]);
+          () => {},
+          async () => {
+            const documentUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            const fullPath = (await uploadTask).metadata.fullPath;
+
+            const propertyRef = doc(db, "properties", propertyId).withConverter(
+              propertyConverter
+            );
+            await updateDoc(propertyRef, {
+              documents: arrayUnion({ title: "", fullPath: fullPath }),
+            });
+
+            setFileList((prevFileList) => {
+              const filteredFileList = prevFileList.filter(
+                (file) => localFile.uid !== file.uid
+              );
+
+              return [
+                ...filteredFileList,
+                {
+                  uid: localFile.uid,
+                  name: localFile.name,
+                  status: "done",
+                  url: documentUrl,
+                },
+              ];
+            });
+          }
+        );
+        break;
       }
-    );
+    }
   },
   listAllFiles: async ({
     userId,
@@ -180,7 +249,9 @@ const propertyServices = {
     userId: string;
     propertyId: string;
   }) => {
-    const url = `users/${userId}/${propertyId}/pictures`;
+    const url = `users/${userId}/properties/${propertyId}/pictures`;
+    // const url = `users/${userId}/properties/${propertyId}/pictures`;
+    // const url = `users/${userId}/properties/${propertyId}/pictures/thumbs`;
     const listRef = ref(storage, url);
     const response = await listAll(listRef);
 
@@ -222,6 +293,9 @@ const propertyServices = {
   deleteProperty: async (propertyId: string) => {
     await deleteDoc(doc(db, "properties", propertyId));
     return propertyId;
+  },
+  deleteAttachment: async () => {
+    // await
   },
 };
 

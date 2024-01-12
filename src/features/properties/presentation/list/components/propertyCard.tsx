@@ -16,7 +16,7 @@ const PropertyCard = ({ property }: { property: Property }) => {
 
   useEffect(() => {
     const getData = async () => {
-      const url = `users/${user?.id}/${property.id}/pictures`;
+      const url = `users/${user?.id}/properties/${property.id}/pictures`;
       const listRef = ref(storage, url);
       const response = await listAll(listRef);
       const imageUrl = await getDownloadURL(
