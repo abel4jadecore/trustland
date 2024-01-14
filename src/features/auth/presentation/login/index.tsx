@@ -11,9 +11,8 @@ const LoginPage = () => {
 
   return (
     <div>
-      trustland
       {!result ? (
-        <RequestVerificationCodeForm setResult={setResult} />
+        <RequestVerificationCodeForm />
       ) : (
         <VerifyCodeForm result={result} />
       )}
