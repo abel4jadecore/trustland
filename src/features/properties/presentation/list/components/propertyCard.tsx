@@ -10,13 +10,12 @@ const { Meta } = Card;
 
 const PropertyCard = ({ property }: { property: Property }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [coverUrl, setCoverUrl] = useState<string>("");
 
   useEffect(() => {
     const getData = async () => {
-      const url = `users/${user?.id}/properties/${property.id}/pictures`;
+      const url = `users/${property.ownerId}/properties/${property.id}/pictures`;
       const listRef = ref(storage, url);
       const response = await listAll(listRef);
       const imageUrl = await getDownloadURL(

@@ -25,6 +25,7 @@ export interface Property {
   dimension: string;
   listType: "sale" | "auction";
   openSides: number;
+  ownerId: string;
   ownership: string;
   propertyType: "farm" | "residential" | "commercial";
   title: string;

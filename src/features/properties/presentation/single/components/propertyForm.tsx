@@ -36,13 +36,13 @@ const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
   useEffect(() => {
     const getData = async () => {
       const response = await propertyServices.listAllFiles({
-        userId: user?.id ?? "",
+        userId: initialValues?.ownerId ?? "",
         propertyId: id,
       });
       setFileList(response);
     };
     getData();
-  }, [user?.id, id]);
+  }, [initialValues?.ownerId, id]);
 
   const handleUpload = async (propertyId: string) => {
     const promises = localFileList.map(async (file) => {
@@ -62,8 +62,8 @@ const PropertyForm = ({ initialValues }: { initialValues?: Property }) => {
     const detailResponse = await propertyServices.saveProperty({
       ...values,
       id: id,
+      ownerId: user!.id,
     });
-    console.log("Yeah");
     await handleUpload(detailResponse.id);
   };
 
