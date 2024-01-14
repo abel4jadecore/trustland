@@ -25,7 +25,24 @@ export interface Property {
   dimension: string;
   listType: "sale" | "auction";
   openSides: number;
+  ownerId: string;
   ownership: string;
   propertyType: "farm" | "residential" | "commercial";
   title: string;
+  documents: {
+    title: string;
+    fullPath: string;
+  }[];
+  pictures: {
+    [date: string]: { fullPaths: string[]; description: string };
+  };
 }
+
+// const pictures: {
+//   [date: string]: { fullPaths: string[]; description: string };
+// } = {
+//   "2022/08/15": {
+//     description: "",
+//     fullPaths: ["url"],
+//   },
+// };
