@@ -10,18 +10,17 @@ const { Dragger } = Upload;
 
 const PropertyAttachments = ({
   id,
-  localFiles,
+  localFileList,
+  setLocalFileList,
   fileList,
   setFileList,
 }: {
   id: string;
-  localFiles: RcFile[];
+  localFileList: RcFile[];
+  setLocalFileList: Dispatch<SetStateAction<RcFile[]>>;
   fileList: UploadFile[];
   setFileList: Dispatch<SetStateAction<UploadFile[]>>;
 }) => {
-  const { uploadAttachment } = propertyServices;
-  const { user } = useAuth();
-
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
 
@@ -38,12 +37,14 @@ const PropertyAttachments = ({
 
   const props: UploadProps = {
     name: "file",
-    fileList,
+    fileList: fileList.sort((a, b) =>
+      a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+    ),
     multiple: true,
     listType: "picture-card",
     onPreview: handlePreview,
-    beforeUpload: (file) => {
-      localFiles.push(file);
+    beforeUpload: (file, fileListOne) => {
+      setLocalFileList((prevFileList) => [...prevFileList, file]);
 
       return false;
     },
