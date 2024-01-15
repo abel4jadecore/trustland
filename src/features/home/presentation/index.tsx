@@ -26,6 +26,7 @@ import {
   FiInstagram,
   FiLinkedin,
 } from "@/assets/icons/vander";
+import { Button } from "antd";
 
 const Houses = [
   { value: "AF", label: "Apartment" },
@@ -280,16 +281,15 @@ const HomePage = () => {
                                 />
                               </div>
                             </div>
-
-                            <div className="lg:mt-6">
-                              <input
-                                type="submit"
-                                id="search-buy"
-                                name="search"
-                                className="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white searchbtn submit-btn w-full !h-12 rounded"
-                                value="Search"
-                              />
-                            </div>
+                          </div>
+                          <div className="lg:mt-6 max-w-10 flex items-center justify-center">
+                            <input
+                              type="submit"
+                              id="search-buy"
+                              name="search"
+                              className="btn bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700 text-white searchbtn submit-btn  !h-12 rounded "
+                              value="Search"
+                            />
                           </div>
                         </div>
                       </form>

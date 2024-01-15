@@ -47,7 +47,7 @@ const RequestVerificationCodeForm = () => {
               <Link to="/index">
                 <img src={Icon} className="mx-auto" alt="" />
               </Link>
-              <h5 className="my-6 text-xl font-semibold">Login</h5>
+              <h5 className="my-6 text-xl font-semibold text-center">Login</h5>
               <Form onFinish={onFinish}>
                 <div className="text-start">
                   <div className="grid grid-cols-1">

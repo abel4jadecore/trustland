@@ -11,7 +11,6 @@ export default function Navbar(props: any) {
   const { navClass, topnavClass } = props;
   const location = useLocation();
   const { isAuthenticated, logout } = useAuth();
-  console.log(isAuthenticated);
 
   const [toggle, setToggle] = useState(false);
   const [manu, setManu] = useState("");
