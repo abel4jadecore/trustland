@@ -22,6 +22,10 @@ const router: RouteObject[] = [
     ],
   },
 
+  // {
+  //   path: "/",
+  //   element: <HomePage />,
+  // },
   {
     path: "/",
     element: (
