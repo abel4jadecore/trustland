@@ -22,6 +22,10 @@ const router: RouteObject[] = [
     ],
   },
 
+  // {
+  //   path: "/",
+  //   element: <HomePage />,
+  // },
   {
     path: "/",
     element: (
@@ -29,6 +33,7 @@ const router: RouteObject[] = [
         <Outlet />
       </Authenticated>
     ),
+    errorElement: <HomePage />,
     children: [
       {
         path: "/",

@@ -1,7 +1,7 @@
 import { ConfirmationResult, RecaptchaVerifier } from "firebase/auth";
 import { auth } from "@/features/core/domain/utils/firebase";
 import useAuth from "@/features/core/presentation/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Switcher from "@/features/core/presentation/components/switcher";
 import BackgroundImage from "@/assets/images/bg/01.jpg";
 import Icon from "@/assets/images/logo-icon-64.png";
@@ -10,6 +10,7 @@ import { useState } from "react";
 
 const RequestVerificationCodeForm = () => {
   const { signInWithPhoneNumber, verifyCode } = useAuth();
+  const navigate = useNavigate();
 
   const [result, setResult] = useState<ConfirmationResult>();
 
@@ -17,7 +18,8 @@ const RequestVerificationCodeForm = () => {
     const { phoneNumber, code } = values;
 
     if (result) {
-      verifyCode(code, result);
+      await verifyCode(code, result);
+      navigate("/");
     } else {
       try {
         const appVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {

@@ -136,6 +136,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         const appUserSnapshot = await getDoc(appUserRef);
         const appUser = appUserSnapshot.data() as AppUser | undefined;
 
+        console.log(appUser);
         if (appUser) {
           dispatch({
             type: "AUTH_STATE_CHANGED",

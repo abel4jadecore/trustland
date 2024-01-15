@@ -23,16 +23,16 @@ const Authenticated: FC<AuthenticatedProps> = (props: {
     return <Spinner />;
   }
 
+  if (user?.isNew) {
+    return <StoreUserData />;
+  }
+
   if (!isAuthenticated) {
     if (location.pathname !== requestedLocation) {
       setRequestedLocation(location.pathname);
     }
 
     return <LoginPage />;
-  }
-
-  if (user?.isNew) {
-    return <StoreUserData />;
   }
 
   if (requestedLocation && location.pathname !== requestedLocation) {
