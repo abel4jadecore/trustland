@@ -78,8 +78,12 @@ export default function Navbar(props: any) {
           ) : (
             <Link className="logo" to="#">
               <span className="inline-block dark:hidden">
-                <img src={LogoDark} className="l-dark" height="24" alt="" />
-                <img src={LogoLight} className="l-light" height="24" alt="" />
+                {/* <img src={LogoDark} className="l-dark" height="24" alt="" />
+                //TODO: Add logo here later
+                <img src={LogoLight} className="l-light" height="24" alt="" /> */}
+                <h6 className={scroll ? "text-black" : "text-white"}>
+                  Trustland
+                </h6>
               </span>
               <img
                 src={LogoLight}

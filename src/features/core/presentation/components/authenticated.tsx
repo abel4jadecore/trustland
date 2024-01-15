@@ -32,6 +32,10 @@ const Authenticated: FC<AuthenticatedProps> = (props: {
       setRequestedLocation(location.pathname);
     }
 
+    if (location.pathname === "/") {
+      return <>{children}</>;
+    }
+
     return <LoginPage />;
   }
 

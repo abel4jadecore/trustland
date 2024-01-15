@@ -33,7 +33,6 @@ const router: RouteObject[] = [
         <Outlet />
       </Authenticated>
     ),
-    errorElement: <HomePage />,
     children: [
       {
         path: "/",
